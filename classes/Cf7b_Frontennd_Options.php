@@ -8,33 +8,32 @@
  */
 class Cf7b_Frontennd_Options {
     
-    private $table_name;
+    private $backup_table;
+    private $connection_table;
     private $db;
-    
-    public $pluginDir;
-   
+       
     public function __construct(){    
         global $wpdb;
+        
         $this->db = $wpdb;
-        //add_action( 'wpcf7_before_send_mail', array( $this, 'saveCF7BData' ) );
-        add_action('wpcf7_before_send_mail',  array( &$this,'save_form') );
+        $this->backup_table = $wpdb->prefix.'contact_form7_backup';;
+        $this->connection_table = $wpdb->prefix.'contact_form7_backup_fields';
+        
+        add_action('wpcf7_before_send_mail',  array( &$this,'saveCF7BData') );
     }
     
     /** 
     * Save Form Data Before Contact Form Send Mail 
     **/ 
-    function save_form( $wpcf7 ) {         
-       
-       $tableBackup = $this->db->prefix.'contact_form7_backup';
-       $tableConnections = $this->db->prefix.'contact_form7_backup_fields';
-       
+    function saveCF7BData( $wpcf7 ) {  
        $submission = WPCF7_Submission::get_instance();
+       
        if ( $submission ) {
             $submited = array();
             $submited['title'] = $wpcf7->title();
             $submited['posted_data'] = $submission->get_posted_data();
             
-            $tableInfo = $this->db->get_results("DESCRIBE " . $tableBackup);
+            $tableInfo = $this->db->get_results("DESCRIBE " . $this->backup_table);
             $backupFields = array();
             foreach($tableInfo as $k=>$v){
                 array_push($backupFields, $v->Field);
@@ -45,7 +44,7 @@ class Cf7b_Frontennd_Options {
                 'formID'  => $wpcf7->id(),
                 'date' => date('Y-m-d H:i:s')
             );
-            $connectionTableData = $this->db->get_results("Select * FROM " . $tableConnections);
+            $connectionTableData = $this->db->get_results("Select * FROM " . $this->connection_table);
             foreach ($connectionTableData as $key=>$val){
                 $columnName = $val->cf7_backup_column;
                 $filedName = $val->cf7_field_name;
@@ -57,35 +56,7 @@ class Cf7b_Frontennd_Options {
                     }
                 }
             } 
-            $this->db->insert($tableBackup, $data);
+            $this->db->insert($this->backup_table, $data);
         }         
-    }
-
-    public function saveCF7BData($data){
-        
-        global $wpdb;
-        $submission = WPCF7_Submission::get_instance();
-
-        if ( $submission ) {
-            $submited = array();
-            $submited['title'] = $wpcf7->title();
-            $submited['posted_data'] = $submission->get_posted_data();
-        }
-
-        $data = array(
-                'first_name'  => $submited['posted_data']['fname'],
-                'last_name'  => $submited['posted_data']['lname'],
-                'email' => $submited['posted_data']['email'],
-                'formTitle'  => $submited['title'], 
-                'date' => date('Y-m-d H:i:s')
-         );
-
-        // $wpdb->insert( $wpdb->prefix . 'contact_form_backup', $data
-        $wpdb->insert('contact_form_backup', $data);    
-        
-    }
-    
-    
-    
-    
+    }      
 }
