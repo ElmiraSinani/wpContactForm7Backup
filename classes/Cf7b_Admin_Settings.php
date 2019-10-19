@@ -24,31 +24,23 @@ class Cf7b_Admin_Settings {
        
         add_action( 'admin_menu', array( $this, 'cf7b_global_settings' ) );  
         add_action( 'admin_menu', array( $this, 'cf7b_backup_fields_connection'));
+        
+        add_action( 'admin_init', array( $this, 'load_cf7b_script_css' ) );
     }
+    //Admin load Styles and Scripts
+    function load_cf7b_script_css(){
+        wp_enqueue_script( 'cf7bjs', CF7B_URL.'/js/adminScripts.js', array( 'jquery' ), null, true );
+        wp_enqueue_style( 'cf7bcss', CF7B_URL.'/css/adminStyles.css', array(), null );		
+    }
+    //Add Admin Menu
     function cf7b_global_settings () {
         add_menu_page( 'Contact Form7 Backup Settings','CF7 Backup','manage_options','cf7b-backup-global-options', array($this,'cf7b_backup_global_options_callback') );
     }  
-    
+    //Add Admin Submenu
     function cf7b_backup_fields_connection() {
         add_submenu_page('cf7b-backup-global-options', 'Backup Fields Connection', 'Show DB and Form Fields Connection', 'manage_options', 'cf7b-backup-fields-connection', array($this,'cf7b_backup_fields_connection_callback') );
-    }
-    
-    public function setTable($table_name) {
-        $this->table_name = $table_name;
-    }
-    public function getRow($id) {
-        return $this->db->get_row("SELECT * FROM " . $this->table_name . " WHERE id= " . (int) $id);
-    }  
-     public function findAll() {
-        return $this->db->get_results("SELECT * FROM " . $this->table_name);
     }    
-    public function updateRow($data, $where) {        
-       return $this->db->update($this->table_name, $data, $where );
-    }
-    public function deleteRow( $where ){
-        $this->db->delete($this->table_name, $where);
-    }
-    
+
     function cf7b_backup_global_options_callback(){
         global $wpdb;
         $tableBackup = $wpdb->prefix.'contact_form7_backup';
@@ -115,7 +107,7 @@ class Cf7b_Admin_Settings {
             }
         }
         
-        $content .= '<h3 class="title">Add New Connection</h3>
+        $content = '<h3 class="title">Add New Connection Between Database Tabel Column and Form Fileld </h3>
                     <hr/>
                     <form class="addConnection" action="" method="POST">
                         <label><span>Field Title</span> <input type="text" name="title" /></label>
@@ -155,9 +147,6 @@ class Cf7b_Admin_Settings {
         }
         $content .= '</tbody></table>';
             
-        echo $content;
-        
+        echo $content;        
     } 
-   
-    
 }

@@ -15,6 +15,14 @@ if ( !defined( 'WPINC' ) ) {
     die;
 }
 
+/**
+* Define
+*/
+define( 'CF7B_URL', plugins_url( '', __FILE__ ) );
+define( 'CF7B_DIR', plugin_dir_path( __FILE__ ) );
+define( 'CF7B_VER', '1.0.0' );
+
+
 register_activation_hook(__FILE__, 'wp_cf7b_install');
 /**
  * Create purchasers and Response payment detail tables
