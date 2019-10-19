@@ -47,7 +47,7 @@ class Cf7b_Admin_Settings {
         
         $fields = $this->db->get_results("SELECT * FROM " . $tableBackup);
         $tableInfo = $this->db->get_results("DESCRIBE " . $tableBackup);
-       
+                
         $content = '<h3 class="title">Contact Form 7 Backup Data</h3>
                     <hr/>
                     <table class="connections_list">
@@ -93,7 +93,7 @@ class Cf7b_Admin_Settings {
             );
             
             //check if field exists in db tabel
-            $checkField = $wpdb->get_results("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+            $checkField = $this->db->get_results("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
             WHERE table_name = '".$tableBackup."' AND column_name = '".$column_name."'"  );
 
             if(empty($checkField)){
@@ -107,7 +107,7 @@ class Cf7b_Admin_Settings {
             }
         }
         
-        $content = '<h3 class="title">Add New Connection Between Database Tabel Column and Form Fileld </h3>
+        $content = '<h3 class="title">Add New Connection Between Database Tabel Column and Form</h3>
                     <hr/>
                     <form class="addConnection" action="" method="POST">
                         <label><span>Field Title</span> <input type="text" name="title" /></label>

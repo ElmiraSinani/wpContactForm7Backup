@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Contact Form 7 backup 
-Plugin URI: #
+Plugin URI: https://github.com/ElmiraSinani/wpContactForm7Backup
 Description: Contact Form 7 backup 
 Version: 1.0.0
 Author: E.Sinani
