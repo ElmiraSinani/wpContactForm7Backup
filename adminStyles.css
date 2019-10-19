@@ -1,0 +1,51 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Oct 19, 2019, 11:20:02 AM
+    Author     : Elmira
+*/
+
+table.connections_list{
+    width: 90%;
+}
+table.connections_list th,
+table.connections_list td{
+    border: 1px solid #a9a9a9;
+    padding: 5px 3px;
+}
+table.connections_list .id{
+    text-align: center;
+}
+.addConnection{
+    display: inline-block;
+    width: 100%;
+}
+.addConnection label{
+    width: 20%;
+    float: left;
+}
+
+.addConnection span{
+    font-weight: bold;
+    display: block;
+}
+.addConnection input[type="text"],
+.addConnection select{
+    width: 90%;
+}
+.addConnection label.save{
+    width: 10%;
+    margin-top: 1.2em;
+}
+.addConnection label.save input[type="submit"]{
+    background: #006799;
+    border: none;
+    width: 100%;
+    color: #fff;
+    text-transform: uppercase;
+    padding: 5px;
+    cursor: pointer;
+}
