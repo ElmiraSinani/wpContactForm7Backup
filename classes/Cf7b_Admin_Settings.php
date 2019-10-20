@@ -39,9 +39,7 @@ class Cf7b_Admin_Settings {
         add_submenu_page('cf7b-backup-global-options', 'Backup Fields Connection', 'Show DB and Form Fields Connection', 'manage_options', 'cf7b-backup-fields-connection', array($this,'cf7b_backup_fields_connection_callback') );
     }    
 
-    function cf7b_backup_global_options_callback(){
-       
-        
+    function cf7b_backup_global_options_callback(){ 
         $fields = $this->db->get_results("SELECT * FROM " .  $this->backup_table);
         $tableInfo = $this->db->get_results("DESCRIBE " .  $this->backup_table);
                 
@@ -58,8 +56,7 @@ class Cf7b_Admin_Settings {
                         </thead>
                     <tbody> ';
         
-        if(isset($fields[0])){
-            $fieldsCount = count((array)$fields[0]);            
+        if(isset($fields[0])){          
             foreach ($fields as $key => $value) { 
                 $content .= '<tr>';                
                 foreach ($value as $k => $v) {
@@ -72,75 +69,93 @@ class Cf7b_Admin_Settings {
         echo $content;
     }
 
-    function cf7b_backup_fields_connection_callback() {
-      
+    function cf7b_backup_fields_connection_callback() {      
         $tableInfo = $this->db->get_results("DESCRIBE " .  $this->backup_table);        
-        $fields = $this->db->get_results("SELECT * FROM " . $this->connection_table);
-        
+        $fields = $this->db->get_results("SELECT * FROM " . $this->connection_table);        
+        $titleVal = "";
+        $tagNameVal = "";
+        $columnNameVal = "";  
+        //Getting Edit Record Values
+        if(isset($_GET['edit']) && $_GET['edit']!=""){
+            $oldData = $this->db->get_results("SELECT * FROM " . $this->connection_table ." WHERE id='".$_GET['edit']."'");
+            $titleVal = $oldData[0]->title;
+            $tagNameVal = $oldData[0]->cf7_field_name;
+            $columnNameVal = $oldData[0]->cf7_backup_column;
+        }
+        //Delete Functionality
+        if(isset($_GET['delete']) && $_GET['delete']!=""){
+            $oldData = $this->db->get_results("SELECT `cf7_backup_column` FROM " . $this->connection_table ." WHERE id='".$_GET['delete']."'");
+            $deleteColumnName =  $oldData[0]->cf7_backup_column;           
+            //check if column exists in db tabel
+            $checkField = $this->db->get_results("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE table_name = '". $this->backup_table."' AND column_name = '".$deleteColumnName."'"  );
+            var_dump($deleteColumnName);
+            var_dump($checkField);
+            if(!empty($checkField)){
+                //Drop Column
+                $this->db->query("ALTER TABLE  $this->backup_table DROP $deleteColumnName");
+            }
+            //delete connection table record
+            $this->db->delete($this->connection_table, array('id'=>$_GET['delete']));
+            wp_redirect(CF7B_CONNECTION_URL);
+            exit;
+        }
+        //Save New Record in Connections Table And Create New Column in Backup Table
         if (isset($_POST['save'])){
             extract($_POST);            
-            //$slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $string)));
             $postData= array(
                 'title'=>$title,
                 'cf7_field_name'=> $tag_name,
                 'cf7_backup_column'=> $column_name
-            );
-            
+            );              
             //check if field exists in db tabel
             $checkField = $this->db->get_results("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
             WHERE table_name = '". $this->backup_table."' AND column_name = '".$column_name."'"  );
-
             if(empty($checkField)){
-               //insert info to connection table
-               $this->db->insert($this->connection_table, $postData);
-               //add new column into backup data table
-               $this->db->query("ALTER TABLE  $this->backup_table ADD $column_name VARCHAR(255) DEFAULT NULL AFTER $afterColumn");
-               $url = $_SERVER['PHP_SELF'].'?page=cf7b-backup-fields-connection';
-               wp_redirect($url);
-               exit;
+                $this->db->insert($this->connection_table, $postData);
+                //add new column into backup data table
+                $this->db->query("ALTER TABLE  $this->backup_table ADD $column_name VARCHAR(255) DEFAULT NULL AFTER $afterColumn");
+                wp_redirect(CF7B_CONNECTION_URL);
+                exit;
             }
         }
-        
         $content = '<h3 class="title">Add New Connection Between Database Tabel Column and Form</h3>
                     <hr/>
                     <form class="addConnection" action="" method="POST">
-                        <label><span>Field Title</span> <input type="text" name="title" /></label>
-                        <label><span>Contact Form 7 Tag name</span> <input type="text" name="tag_name" /></label>
-                        <label><span>DB Table column Name</span> <input type="text" name="column_name" /></label>
+                        <label><span>Field Title</span> <input type="text" name="title" value="'.$titleVal.'"/></label>
+                        <label><span>Contact Form 7 Tag name</span> <input type="text" name="tag_name" value="'.$tagNameVal.'" /></label>
+                        <label><span>DB Table column Name</span> <input type="text" name="column_name" value="'.$columnNameVal.'" /></label>
                         <label><span>Add Column After</span><select name=afterColumn>'; 
-                        foreach ($tableInfo as $k=>$v){
-                            $content .= '<option value="'.$v->Field.'">'.$v->Field.'</option>';
-                        }                        
-        $content .=     '</select></label>
-                        <label class="save"><input type="submit" name="save" value="Save" /></label>
+            foreach ($tableInfo as $k=>$v){
+                $content .= '<option value="'.$v->Field.'">'.$v->Field.'</option>';
+            }                        
+        $content .=  '</select></label>
+                     <label class="save"><input type="submit" name="save" value="Save" /></label>
                     </form>
                     <hr/>';
-
          $content .= '<h3 class="title">Contact Form 7 Fields Connection</h3>
                     <hr/>
                     <table class="connections_list">
                         <thead>
                             <tr>
-                                <th>#</th>
                                 <th>Field Title</th>
                                 <th>Contact Form 7 tag name</th>
                                 <th>Databes Tabel Column Name</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody> ';
-        
+                        <tbody> ';        
         foreach ($fields as $key => $value) { 
             $content .= '<tr>';
-            $content .= '<td align="center">'.$value->id.'</td>';
             $content .= '<td>'.$value->title.'</td>';
             $content .= '<td>'.$value->cf7_field_name.'</td>';
             $content .= '<td>'.$value->cf7_backup_column.'</td>';            
-            $content .= '<td  align="center"><a href="">Refresh</a> | <a href="">Edit</a> | <a href="">Delete</a></td>';            
+            $content .= '<td  align="center">'
+                    . '<a href="'.CF7B_CONNECTION_URL.'&delete='.$value->id.'">Delete</a></td>';            
             $content .= '</tr>';
         }
         $content .= '</tbody></table>';
-            
+        
         echo $content;        
     } 
 }

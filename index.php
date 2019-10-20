@@ -20,8 +20,10 @@ if ( !defined( 'WPINC' ) ) {
 */
 define( 'CF7B_URL', plugins_url( '', __FILE__ ) );
 define( 'CF7B_DIR', plugin_dir_path( __FILE__ ) );
-define( 'CF7B_VER', '1.0.0' );
+define( 'CF7B_CONNECTION_URL', admin_url('admin.php?page=cf7b-backup-fields-connection'));
+define( 'CF7B_BACKUP_URL', admin_url('admin.php?page=cf7b-backup-fields-connection')); 
 
+define( 'CF7B_VER', '1.0.0' );
 
 register_activation_hook(__FILE__, 'wp_cf7b_install');
 /**
@@ -68,7 +70,6 @@ function showAllErrors(){
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
 }
-
 
 /**
  * The core plugin class that is used to define internationalization,
