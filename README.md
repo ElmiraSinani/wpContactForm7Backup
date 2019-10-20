@@ -1,8 +1,15 @@
 ## Contact Form 7 Backup Plugin 
-###### Plugin Main Features are
-* backup Contact Form 7 fields data
-* dynamically add new fields that need to be saved
-* delete already added fields 
+###### Plugin Main Features
+
+* **Backend**
+  * Add Connection Between Database Tabel Column and Contact Form Fields
+    * Dynamically adds new field into backup table that need to be saved
+    * View Already Added Connections
+    * Delete Existing Added Connections
+  * Display Saved Contact Form data Screen
+  
+* **Frontend**
+  * Automatically Save Contact Form Data Before Form Submit
 
 #### Screenshots From Backend Features
 
