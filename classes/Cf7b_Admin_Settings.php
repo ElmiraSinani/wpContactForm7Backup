@@ -7,46 +7,43 @@
  * @author      E.Sinani <info.esinani@gmail.com>
  */
 class Cf7b_Admin_Settings {
-    
-    private $table_name;
+       
+    private $backup_table;
+    private $connection_table;
     private $db;
     
-    public $errors = array();
-    public $pluginDir;
-    public $globalSettingsDir;
-
     public function __construct() {         
         global $wpdb;
-        $this->table_name = $table_name;
+        
         $this->db = $wpdb;
-        $this->pluginDir = WP_PLUGIN_DIR.'/contactForm7Backup';
-        $this->globalSettingsDir = "contactForm7Backup/includes/partials/_manage_general_settings.php";
-       
+        $this->backup_table = $wpdb->prefix.'contact_form7_backup';;
+        $this->connection_table = $wpdb->prefix.'contact_form7_backup_fields';   
+                
+        //Add Admin menue items
         add_action( 'admin_menu', array( $this, 'cf7b_global_settings' ) );  
         add_action( 'admin_menu', array( $this, 'cf7b_backup_fields_connection'));
-        
+        //Add plugin Styles and Scripts
         add_action( 'admin_init', array( $this, 'load_cf7b_script_css' ) );
     }
-    //Admin load Styles and Scripts
+    //Load plugin Styles and Scripts
     function load_cf7b_script_css(){
         wp_enqueue_script( 'cf7bjs', CF7B_URL.'/js/adminScripts.js', array( 'jquery' ), null, true );
         wp_enqueue_style( 'cf7bcss', CF7B_URL.'/css/adminStyles.css', array(), null );		
     }
-    //Add Admin Menu
+    //Add Admin Menu Item
     function cf7b_global_settings () {
         add_menu_page( 'Contact Form7 Backup Settings','CF7 Backup','manage_options','cf7b-backup-global-options', array($this,'cf7b_backup_global_options_callback') );
     }  
-    //Add Admin Submenu
+    //Add Submenu to Admin Menu Item
     function cf7b_backup_fields_connection() {
         add_submenu_page('cf7b-backup-global-options', 'Backup Fields Connection', 'Show DB and Form Fields Connection', 'manage_options', 'cf7b-backup-fields-connection', array($this,'cf7b_backup_fields_connection_callback') );
     }    
 
     function cf7b_backup_global_options_callback(){
-        global $wpdb;
-        $tableBackup = $wpdb->prefix.'contact_form7_backup';
+       
         
-        $fields = $this->db->get_results("SELECT * FROM " . $tableBackup);
-        $tableInfo = $this->db->get_results("DESCRIBE " . $tableBackup);
+        $fields = $this->db->get_results("SELECT * FROM " .  $this->backup_table);
+        $tableInfo = $this->db->get_results("DESCRIBE " .  $this->backup_table);
                 
         $content = '<h3 class="title">Contact Form 7 Backup Data</h3>
                     <hr/>
@@ -76,12 +73,9 @@ class Cf7b_Admin_Settings {
     }
 
     function cf7b_backup_fields_connection_callback() {
-        global $wpdb;
-        $tableConnections = $wpdb->prefix.'contact_form7_backup_fields';
-        $tableBackup = $wpdb->prefix.'contact_form7_backup';
-        $tableInfo = $this->db->get_results("DESCRIBE " . $tableBackup);
-        
-        $fields = $this->db->get_results("SELECT * FROM " . $tableConnections);
+      
+        $tableInfo = $this->db->get_results("DESCRIBE " .  $this->backup_table);        
+        $fields = $this->db->get_results("SELECT * FROM " . $this->connection_table);
         
         if (isset($_POST['save'])){
             extract($_POST);            
@@ -94,13 +88,13 @@ class Cf7b_Admin_Settings {
             
             //check if field exists in db tabel
             $checkField = $this->db->get_results("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE table_name = '".$tableBackup."' AND column_name = '".$column_name."'"  );
+            WHERE table_name = '". $this->backup_table."' AND column_name = '".$column_name."'"  );
 
             if(empty($checkField)){
                //insert info to connection table
-               $this->db->insert($tableConnections, $postData);
+               $this->db->insert($this->connection_table, $postData);
                //add new column into backup data table
-               $wpdb->query("ALTER TABLE $tableBackup ADD $column_name VARCHAR(255) DEFAULT NULL AFTER $afterColumn");
+               $this->db->query("ALTER TABLE  $this->backup_table ADD $column_name VARCHAR(255) DEFAULT NULL AFTER $afterColumn");
                $url = $_SERVER['PHP_SELF'].'?page=cf7b-backup-fields-connection';
                wp_redirect($url);
                exit;

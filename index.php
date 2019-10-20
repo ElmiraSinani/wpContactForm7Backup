@@ -32,8 +32,8 @@ function wp_cf7b_install() {
      
     $cf7BackupTable = "CREATE TABLE IF NOT EXISTS `".$wpdb->prefix."contact_form7_backup` (
         `id` int(15) unsigned NOT NULL AUTO_INCREMENT,         
-        `formTitle` VARCHAR(100) NOT NULL, 
-        `formID` VARCHAR(50) NOT NULL,  
+        `form_title` VARCHAR(100) NOT NULL, 
+        `form_id` VARCHAR(50) NOT NULL,  
         `date` DATETIME,
         PRIMARY KEY (`id`)
     ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1";    

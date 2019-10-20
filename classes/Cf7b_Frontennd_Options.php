@@ -2,8 +2,8 @@
 /**
  * The core plugin class.
  * 
- * @package     ameriabank-vPOS-v3
- * @subpackage  ameriabank-vPOS-v3/classes
+ * @package     contactForm7Backup
+ * @subpackage  contactForm7Backup/classes
  * @author      E.Sinani <info.esinani@gmail.com>
  */
 class Cf7b_Frontennd_Options {
@@ -40,8 +40,8 @@ class Cf7b_Frontennd_Options {
             }
             
             $data = array(
-                'formTitle'  => $wpcf7->title(), 
-                'formID'  => $wpcf7->id(),
+                'form_title'  => $wpcf7->title(), 
+                'form_id'  => $wpcf7->id(),
                 'date' => date('Y-m-d H:i:s')
             );
             $connectionTableData = $this->db->get_results("Select * FROM " . $this->connection_table);
@@ -49,7 +49,7 @@ class Cf7b_Frontennd_Options {
                 $columnName = $val->cf7_backup_column;
                 $filedName = $val->cf7_field_name;
                 //check if field exists in db tabel
-                 if(in_array($columnName, $backupFields)){
+                if(in_array($columnName, $backupFields)){
                     //create dynamic array for data insert
                     if(isset($submited['posted_data'][$filedName])){
                         $data[$columnName] = $submited['posted_data'][$filedName];
